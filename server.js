@@ -40,6 +40,8 @@ var sessionMiddleware = session({
 
 app.use(sessionMiddleware);
 
+// @SOCKETS - for sockets to access logged in user id
+
 // SHARE MIDDLEWARE SOLUTION
 io.use(function(socket, next){
   // Wrap the express middleware
@@ -48,7 +50,7 @@ io.use(function(socket, next){
 
 
 // @SOCKETS
-// main page of site
+// main page of site (chat page)
 app.get('/', function(req, res){
   res.render('index');
 });
@@ -56,7 +58,7 @@ app.get('/', function(req, res){
 // @SOCKETS
 // listen for a connection event
 io.on('connection', function(socket){
-  // socket.id uniquely identifies a connected user
+  // socket.id uniquely identifies a connected user :)
   console.log('user connected with socket id ', socket.id);
   // for socket AUTH
   // we now have access to socket.request.session, which is the same as req.session
