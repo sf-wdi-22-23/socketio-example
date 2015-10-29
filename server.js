@@ -58,24 +58,24 @@ app.get('/', function(req, res){
 io.on('connection', function(socket){
   // socket.id uniquely identifies a connected user
   console.log('user connected with socket id ', socket.id);
-  // AUTH
+  // for socket AUTH
   // we now have access to socket.request.session, which is the same as req.session
   console.log('socket.request.session is ', socket.request.session);
   // if a user is logged in:
   if (socket.request.session.userId){
      console.log('user id is ', socket.request.session.userId);
-     db.Users.findOne({_id: socket.request.session.userId}, function(err, foundUser){
+     User.findOne({_id: socket.request.session.userId}, function(err, foundUser){
         io.emit('new user connected with email '+ foundUser.email);
-     })
+     });
   }
 
 
   // listen for a custom event type - new chat message
   socket.on('new chat message', function(message){
     console.log('new chat message: socket.request.session is ', socket.request.session);
-    console.log('message from '+socket.id + ": " + message);
+    console.log('message from ' + socket.id + ": " + message);
     // for passing objects in socket events, see: http://socket.io/docs/#using-with-express-3/4
-    // db.Users.find({_id: targetUserId}, function(err, foundUser){
+    // User.find({_id: targetUserId}, function(err, foundUser){
     //   if (err) { console.log(err); }
     //   foundUser.messages.push(message);
     //   foundUser.save();
@@ -152,7 +152,6 @@ app.get('/logout', function (req, res) {
 
 //@SOCKETS
 // change to use the httpServer variable to listen
-// listen on port 3000 - @TODO necessary?
 httpServer.listen(3000, function () {
   console.log('server started on locahost:3000');
 });
