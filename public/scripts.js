@@ -1,9 +1,11 @@
 console.log('sanity check: client-side js loaded');
 
 var socket = null;
+// var socket = io();
 
 $(document).ready(function() {
   $('a#connect').on('click', function(e){
+    e.preventDefault();
     socket = socket || io();
     // logging the socket id, but with a delay to give the connection time
     setTimeout(function(){ console.log(socket.id); }, 500);
@@ -17,6 +19,7 @@ $(document).ready(function() {
 
 
   $('form#chat').submit(function(e){
+    console.log("submitted");
     e.preventDefault();
     // grab the input field data
     var newMessage = $('input#message').val();

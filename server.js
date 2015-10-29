@@ -37,6 +37,7 @@ var sessionMiddleware = session({
   cookie: { maxAge: 30 * 60 * 1000 }
 });
 
+
 app.use(sessionMiddleware);
 
 // SHARE MIDDLEWARE SOLUTION
@@ -44,25 +45,6 @@ io.use(function(socket, next){
   // Wrap the express middleware
   sessionMiddleware(socket.request, socket.request.res, next);
 });
-
-
-// HAND ROLLED SOLUTION
-// @SOCKET-AUTH -- @TODO required?
-// we'll use sessions/cookies to connect socket server to http server
-// var cookieParser = require('cookie-parser');
-// app.use(cookieParser);
-
-// // @SOCKET-AUTH
-// io.use(function(socket, next) {
-//   console.log('inside io.use for handshake')
-//   var handshakeData = socket.request;
-//   // make sure the handshake data looks good as before
-//   console.log('handshake cookie: ', handshakeData.headers.cookie);
-//   // if error do this:
-//     // next(new Error('not authorized');
-//   // else just call next
-//   next();
-// });
 
 
 // @SOCKETS
@@ -74,12 +56,30 @@ app.get('/', function(req, res){
 // @SOCKETS
 // listen for a connection event
 io.on('connection', function(socket){
+  // socket.id uniquely identifies a connected user
   console.log('user connected with socket id ', socket.id);
-  console.log('socket.request.session is ', socket.request.sessionId);
-  console.log('user id is ', socket.request.session.userId);
+  // AUTH
+  // we now have access to socket.request.session, which is the same as req.session
+  console.log('socket.request.session is ', socket.request.session);
+  // if a user is logged in:
+  if (socket.request.session.userId){
+     console.log('user id is ', socket.request.session.userId);
+     db.Users.findOne({_id: socket.request.session.userId}, function(err, foundUser){
+        io.emit('new user connected with email '+ foundUser.email);
+     })
+  }
+
+
   // listen for a custom event type - new chat message
   socket.on('new chat message', function(message){
+    console.log('new chat message: socket.request.session is ', socket.request.session);
     console.log('message from '+socket.id + ": " + message);
+    // for passing objects in socket events, see: http://socket.io/docs/#using-with-express-3/4
+    // db.Users.find({_id: targetUserId}, function(err, foundUser){
+    //   if (err) { console.log(err); }
+    //   foundUser.messages.push(message);
+    //   foundUser.save();
+    // });
     io.emit('chat message', message);
   });
 
